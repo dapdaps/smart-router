@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+const path = require("path");
+const project = path.join(__dirname, "../tsconfig.oclif.json");
+
+require("ts-node").register({
+  project,
+  compilerOptions: { preserveSymlinks: true },
+});
+require('@oclif/command').run()
+  .catch(require('@oclif/errors/handle'))
