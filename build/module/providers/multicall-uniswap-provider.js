@@ -80,7 +80,7 @@ export class UniswapMulticallProvider extends IMulticallProvider {
         });
         //console.log("calls: " + JSON.stringify(calls))
         log.debug({ calls }, `About to multicall for ${functionName} at address ${address} with ${functionParams.length} different sets of params`);
-        console.log("calls: " + calls.length);
+        //console.log("calls: " + calls.length);
         const results = [];
         const gasUsedForSuccess = [];
         //try {
