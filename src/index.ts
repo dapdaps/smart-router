@@ -197,86 +197,61 @@ async function getRoute(chainIdNumb: number, tokenInStr: string, tokenOutStr: st
             "routeString": routeAmountsToString(swapRoutes.route),
             "tradeType": "EXACT_INPUT",
             "priceImpact": "",
-            "tokenPath": [] as any[],
             "route": [] as any[]
         },
     }
 
     const userPrice = new BigNumber(swapRoutes.quote.toExact()).dividedBy(new BigNumber(amountIn.toExact()))
     let marketPrice = new BigNumber(0)
+    let marketFee = new BigNumber(0)
     for (let route of swapRoutes.route) {
         if (route.route instanceof V3Route) {
             let routePrice = new BigNumber(1)
+            let routeFee = new BigNumber(0)
             let tokenInput = tokenInStr;
-            for (let pool of route.route.pools) {
+            let routePools = [] as any[]
+            for (let index = 0; index < route.route.pools.length; index++) {
+                const pool = route.route.pools[index]!
                 const isToken0Input = pool.token0.address.toLowerCase() == tokenInput.toLowerCase();
                 tokenInput = isToken0Input ? pool.token1.address : pool.token0.address;
                 const price = sqrtToPrice(new BigNumber(pool.sqrtRatioX96.toString()), new BigNumber(pool.token0.decimals), new BigNumber(pool.token1.decimals), isToken0Input)
                 routePrice = routePrice.times(price)
-            }
-            console.log('percent:'+route.percent.toString()+" price:"+routePrice.toString())
-            marketPrice = marketPrice.plus(new BigNumber(route.percent).times(routePrice).dividedBy(100))
-        }
-    }
-    const absoluteChange = marketPrice.minus(userPrice)
-    const percentChange = absoluteChange.div(marketPrice)
-    result.quote.priceImpact = (percentChange.times(100)).toNumber().toFixed(3)
-    console.log(`userPrice: ${userPrice.toString()} marketPrice:${marketPrice.toString()} priceImpact:${result.quote.priceImpact.toString()}`)
-
-    const route = swapRoutes.route[0]
-    if (route) {
-        for (let index in route.tokenPath) {
-            result.quote.tokenPath.push({
-                "chainId": route.tokenPath[index]!.chainId,
-                "decimals": route.tokenPath[index]!.decimals,
-                "address": route.tokenPath[index]!.address,
-                "symbol": route.tokenPath[index]!.symbol,
-            })
-        }
-        if (route.route instanceof V3Route) {
-            for (let index = 0; index < route.route.pools.length; index++) {
-                const routePool = route.route.pools[index]
-                let routePoolObj = {
-                    "type": route.protocol,
+                routeFee = routeFee.plus(pool.fee/10000)
+                routePools.push({
+                    "type": route.route.protocol,
                     "address": route.poolAddresses[index],
-                    "fee": routePool?.fee,
-                    "liquidity": routePool?.liquidity.toString(),
-                    "sqrtRatioX96": routePool?.sqrtRatioX96.toString(),
-                    "sqrtRatioX96After": "",
+                    "fee": pool.fee,
+                    "liquidity": pool.liquidity.toString(),
+                    "sqrtRatioX96": pool.sqrtRatioX96.toString(),
                     "token0": {
-                        "chainId": routePool?.token0.chainId,
-                        "decimals": routePool?.token0.decimals,
-                        "address": routePool?.token0.address,
-                        "symbol": routePool?.token0.symbol,
+                        "chainId": pool.token0.chainId,
+                        "decimals": pool.token0.decimals,
+                        "address": pool.token0.address,
+                        "symbol": pool.token0.symbol,
                     },
                     "token1": {
-                        "chainId": routePool?.token1.chainId,
-                        "decimals": routePool?.token1.decimals,
-                        "address": routePool?.token1.address,
-                        "symbol": routePool?.token1.symbol,
+                        "chainId": pool.token1.chainId,
+                        "decimals": pool.token1.decimals,
+                        "address": pool.token1.address,
+                        "symbol": pool.token1.symbol,
                     }
-                }
-                result.quote.route.push(routePoolObj)
-                //console.log("sqrtRatioX96: " + routePool?.sqrtRatioX96.toString())
-                // if (index == route.route.pools.length - 1) {
-                //     //const isToken0Input = routePool?.token0.address.toLowerCase() != tokenOutStr.toLowerCase()
-                //     if (route instanceof V3RouteWithValidQuote) {
-                //         console.log("sqrtPriceX96AfterList: " + route.sqrtPriceX96AfterList[index]?.toString() + " isToken0Input: " + isToken0Input)
-                //         try {
-                //             const price = sqrtToPrice(new BigNumber(routePool!.sqrtRatioX96.toString()), new BigNumber(routePool!.token0.decimals), new BigNumber(routePool!.token1.decimals), isToken0Input)
-                //             routePoolObj.sqrtRatioX96After = route.sqrtPriceX96AfterList[index]!.toString()
-                //             const priceAfter = sqrtToPrice(new BigNumber(route.sqrtPriceX96AfterList[index]!.toString()), new BigNumber(routePool!.token0.decimals), new BigNumber(routePool!.token1.decimals), isToken0Input)
-                //             const absoluteChange = price.minus(priceAfter)
-                //             const percentChange = absoluteChange.div(price)//absoluteChange / price
-                //             result.quote.priceImpact = (percentChange.multipliedBy(100)).toNumber().toFixed(3)
-                //         } catch (e) {
-                //             console.log("Exception priceImpact: " + e)
-                //         }
-                //     }
-                // }
+                })
             }
+            console.log('percent:'+route.percent.toString()+" price:"+routePrice.toString()+" fee:"+routeFee.toString())
+            marketPrice = marketPrice.plus(new BigNumber(route.percent).times(routePrice).dividedBy(100))
+            marketFee = marketFee.plus(new BigNumber(route.percent).times(routeFee).dividedBy(100))
+            result.quote.route.push(routePools)
         }
     }
+    const absoluteChange = marketPrice.minus(userPrice);
+    const percentChange = absoluteChange.div(marketPrice);
+    let priceImpact = percentChange.times(100).minus(marketFee);
+    if (priceImpact.lte(0)) {
+        result.quote.priceImpact = "0"
+    } else {
+        result.quote.priceImpact = priceImpact.toNumber().toFixed(3)
+    }
+    console.log(`userPrice: ${userPrice.toString()} marketPrice:${marketPrice.toString()} priceImpact:${result.quote.priceImpact}`)
     return {code:1,data:result}
 }
 
