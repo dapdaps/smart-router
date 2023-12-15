@@ -238,7 +238,10 @@ async function getRoute(chainIdNumb: number, tokenInStr: string, tokenOutStr: st
             console.log('percent:'+route.percent.toString()+" price:"+routePrice.toString()+" fee:"+routeFee.toString())
             marketPrice = marketPrice.plus(new BigNumber(route.percent).times(routePrice).dividedBy(100))
             marketFee = marketFee.plus(new BigNumber(route.percent).times(routeFee).dividedBy(100))
-            result.quote.route.push(routePools)
+            result.quote.route.push({
+                'percent': route.percent,
+                'route': routePools,
+            })
         }
     }
     const absoluteChange = marketPrice.minus(userPrice);
