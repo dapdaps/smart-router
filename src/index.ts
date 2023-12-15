@@ -43,8 +43,7 @@ app.get('/router', async (req: any, res: any) => {
         const chainId: number = Number(req.query.chainId)
         const tokenIn: string = req.query.tokenIn
         const tokenOut: string = req.query.tokenOut
-        const amount: number = Number(req.query.amount)
-        const route = await getRoute(chainId, tokenIn, tokenOut, amount.toString())
+        const route = await getRoute(chainId, tokenIn, tokenOut, req.query.amount)
         console.log("request end: " + (Date.now()-start))
         res.send(route)
     } catch (e) {
@@ -142,7 +141,6 @@ async function getRoute(chainIdNumb: number, tokenInStr: string, tokenOutStr: st
     console.log("init end: "+ (Date.now()-start))
     let swapRoutes: SwapRoute | null;
     const amountIn = parseAmountWithDecimal(amountStr, tokenIn);
-    
     try {
         swapRoutes = await router.route(
             amountIn,
