@@ -210,6 +210,7 @@ async function getRoute(chainIdNumb: number, tokenInStr: string, tokenOutStr: st
             let routeFee = new BigNumber(0)
             let tokenInput = tokenInStr;
             let routePools = [] as any[]
+            let routeTokenPath = []as any[]
             for (let index = 0; index < route.route.pools.length; index++) {
                 const pool = route.route.pools[index]!
                 const isToken0Input = pool.token0.address.toLowerCase() == tokenInput.toLowerCase();
@@ -240,9 +241,18 @@ async function getRoute(chainIdNumb: number, tokenInStr: string, tokenOutStr: st
             console.log('percent:'+route.percent.toString()+" price:"+routePrice.toString()+" fee:"+routeFee.toString())
             marketPrice = marketPrice.plus(new BigNumber(route.percent).times(routePrice).dividedBy(100))
             marketFee = marketFee.plus(new BigNumber(route.percent).times(routeFee).dividedBy(100))
+            for (let tokenPath of route.tokenPath) {
+                routeTokenPath.push({
+                    "chainId": tokenPath.chainId,
+                    "decimals": tokenPath.decimals,
+                    "address": tokenPath.address,
+                    "symbol": tokenPath.symbol,
+                })
+            }
             result.quote.route.push({
                 'percent': route.percent,
                 'route': routePools,
+                'tokenPath': routeTokenPath,
             })
         }
     }
