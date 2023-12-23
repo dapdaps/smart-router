@@ -181,7 +181,7 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       `About to multicall for ${functionName} at address ${address} with ${functionParams.length} different sets of params`
     );
 
-    console.log("calls: " + calls.length)
+    //console.log("calls: " + calls.length)
     const results: Result<TReturn>[] = [];
     const gasUsedForSuccess: number[] = [];
     //try {

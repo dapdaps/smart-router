@@ -152,7 +152,6 @@ class OnChainQuoteProvider {
     }
     async getQuotesManyData(amounts, routes, functionName, _providerConfig) {
         var _a;
-        //console.log("functionName: " + functionName)
         const useMixedRouteQuoter = routes.some((route) => route.protocol === router_sdk_1.Protocol.V2) ||
             routes.some((route) => route.protocol === router_sdk_1.Protocol.MIXED);
         /// Validate that there are no incorrect routes / function combinations
@@ -187,18 +186,6 @@ class OnChainQuoteProvider {
                 inputs: inputChunk,
             };
         });
-        // log.info(
-        //   `About to get ${inputs.length
-        //   } quotes in chunks of ${normalizedChunk} [${_.map(
-        //     inputsChunked,
-        //     (i) => i.length
-        //   ).join(',')}] ${gasLimitOverride
-        //     ? `with a gas limit override of ${gasLimitOverride}`
-        //     : ''
-        //   } and block number: ${await providerConfig.blockNumber} [Original before offset: ${originalBlockNumber}].`
-        // );
-        //metric.putMetric('QuoteBatchSize', inputs.length, MetricLoggerUnit.Count);
-        //metric.putMetric(`QuoteBatchSize_${ID_TO_NETWORK_NAME(this.chainId)}`, inputs.length, MetricLoggerUnit.Count);
         let haveRetriedForSuccessRate = false;
         let haveRetriedForBlockHeader = false;
         let blockHeaderRetryAttemptNumber = 0;
@@ -215,9 +202,9 @@ class OnChainQuoteProvider {
             haveIncrementedBlockHeaderFailureCounter = false;
             finalAttemptNumber = attemptNumber;
             const [success, failed, pending] = this.partitionQuotes(quoteStates);
-            log_1.log.info(`Starting attempt: ${attemptNumber}.
-          Currently ${success.length} success, ${failed.length} failed, ${pending.length} pending.
-          Gas limit override: ${gasLimitOverride} Block number override: ${providerConfig.blockNumber}.`);
+        //     log_1.log.info(`Starting attempt: ${attemptNumber}.
+        //   Currently ${success.length} success, ${failed.length} failed, ${pending.length} pending.
+        //   Gas limit override: ${gasLimitOverride} Block number override: ${providerConfig.blockNumber}.`);
             quoteStates = await Promise.all(lodash_1.default.map(quoteStates, async (quoteState, idx) => {
                 if (quoteState.status == 'success') {
                     return quoteState;
@@ -241,7 +228,6 @@ class OnChainQuoteProvider {
                             gasLimitPerCallOverride: gasLimitOverride,
                         },
                     });
-                    //console.log(JSON.stringify(results))
                     const successRateError = this.validateSuccessRate(results.results, haveRetriedForSuccessRate);
                     if (successRateError) {
                         return {
@@ -256,9 +242,8 @@ class OnChainQuoteProvider {
                         inputs,
                         results,
                     };
-                }
-                catch (err) {
-                    console.log("error: " + err);
+                }catch (err) {
+                    console.log("callSameFunctionOnContractWithMultipleParams error");
                     // Error from providers have huge messages that include all the calldata and fill the logs.
                     // Catch them and rethrow with shorter message.
                     if (err.message.includes('header not found')) {
@@ -275,7 +260,6 @@ class OnChainQuoteProvider {
                             reason: new ProviderTimeoutError(`Req ${idx}/${quoteStates.length}. Request had ${inputs.length} inputs. ${err.message.slice(0, 500)}`),
                         };
                     }
-                    //console.log(err.message)
                     if (err.message.includes('out of gas')) {
                         return {
                             status: 'failed',
@@ -407,6 +391,7 @@ class OnChainQuoteProvider {
                         approxGasUsedPerSuccessCall: 0,
                     };
                 }
+                console.log("-------Failed to get-------")
                 throw new Error(`Failed to get ${failedQuoteStates.length} quotes. Reasons: ${reasonForFailureStr}`);
             }
             const callResults = lodash_1.default.map(successfulQuoteStates, (quoteState) => quoteState.results);

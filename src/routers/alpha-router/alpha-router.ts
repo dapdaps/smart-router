@@ -567,6 +567,7 @@ export class AlphaRouter
             }
           );
           break;
+        case ChainId.SCROLL:
         case ChainId.Linea_GOERLI:
         case ChainId.LINEA:
           this.onChainQuoteProvider = new OnChainQuoteProvider(
