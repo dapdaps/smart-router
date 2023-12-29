@@ -391,7 +391,7 @@ class OnChainQuoteProvider {
                         approxGasUsedPerSuccessCall: 0,
                     };
                 }
-                console.log("-------Failed to get-------")
+                //console.log("-------Failed to get-------")
                 throw new Error(`Failed to get ${failedQuoteStates.length} quotes. Reasons: ${reasonForFailureStr}`);
             }
             const callResults = lodash_1.default.map(successfulQuoteStates, (quoteState) => quoteState.results);

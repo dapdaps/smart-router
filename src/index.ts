@@ -214,6 +214,7 @@ async function getRoute(chainIdNumb: number, tokenInStr: string, tokenOutStr: st
                 const isToken0Input = pool.token0.address.toLowerCase() == tokenInput.toLowerCase();
                 tokenInput = isToken0Input ? pool.token1.address : pool.token0.address;
                 const price = sqrtToPrice(new BigNumber(pool.sqrtRatioX96.toString()), new BigNumber(pool.token0.decimals), new BigNumber(pool.token1.decimals), isToken0Input)
+                //console.log('sqrtRatioX96:'+pool.sqrtRatioX96.toString()+" price:"+price.toString()+" pool:"+route.poolAddresses[index]+" fee:"+pool.fee)
                 routePrice = routePrice.times(price)
                 routeFee = routeFee.plus(pool.fee/10000)
                 routePools.push({
@@ -236,7 +237,7 @@ async function getRoute(chainIdNumb: number, tokenInStr: string, tokenOutStr: st
                     }
                 })
             }
-            console.log('percent:'+route.percent.toString()+" price:"+routePrice.toString()+" fee:"+routeFee.toString())
+            console.log('percent:'+route.percent.toString()+" routePrice:"+routePrice.toString()+" fee:"+routeFee.toString())
             marketPrice = marketPrice.plus(new BigNumber(route.percent).times(routePrice).dividedBy(100))
             marketFee = marketFee.plus(new BigNumber(route.percent).times(routeFee).dividedBy(100))
             for (let tokenPath of route.tokenPath) {
@@ -271,9 +272,10 @@ function sqrtToPrice(sqrt: BigNumber, decimals0: BigNumber, decimals1: BigNumber
     let ratio = numerator.dividedBy(2 ** 50).dividedBy(2 ** 50).dividedBy(2 ** 50).dividedBy(2 ** 42) //numerator / denominator
     const shiftDecimals = new BigNumber(10).pow(decimals0.minus(decimals1).toNumber())   //Math.pow(10, decimals0 - decimals1)
     ratio = ratio.times(shiftDecimals)//ratio * shiftDecimals
-    if (!token0IsInput) {
+    //console.log("ratio : "+ratio.toString()+ " token0IsInput: "+token0IsInput.toString())
+    if (!token0IsInput && !ratio.isEqualTo(new BigNumber(0))) {
         ratio = new BigNumber(1).div(ratio) // 1 / ratio
-    }
+    } 
     return ratio
 }
 
