@@ -9,9 +9,9 @@ import Queue from 'mnemonist/queue';
 import { IPortionProvider } from '../../../providers/portion-provider';
 import { HAS_L1_FEE } from '../../../util';
 import { CurrencyAmount } from '../../../util/amounts';
-import { log } from '../../../util/log';
-import { metric, MetricLoggerUnit } from '../../../util/metric';
-import { routeAmountsToString, routeToString } from '../../../util/routes';
+//import { log } from '../../../util/log';
+//import { metric, MetricLoggerUnit } from '../../../util/metric';
+//import { routeAmountsToString, routeToString } from '../../../util/routes';
 import { SwapOptions } from '../../router';
 import { AlphaRouterConfig } from '../alpha-router';
 import { IGasModel, L1ToL2GasCosts, usdGasTokensByChain } from '../gas-models';
@@ -41,18 +41,16 @@ export async function getBestSwapRoute(
   gasModel?: IGasModel<V3RouteWithValidQuote>,
   swapConfig?: SwapOptions
 ): Promise<BestSwapRoute | null> {
-  const now = Date.now();
-
   const { forceMixedRoutes } = routingConfig;
 
   /// Like with forceCrossProtocol, we apply that logic here when determining the bestSwapRoute
   if (forceMixedRoutes) {
-    log.info(
-      {
-        forceMixedRoutes: forceMixedRoutes,
-      },
-      'Forcing mixed routes by filtering out other route types'
-    );
+    // log.info(
+    //   {
+    //     forceMixedRoutes: forceMixedRoutes,
+    //   },
+    //   'Forcing mixed routes by filtering out other route types'
+    // );
     routesWithValidQuotes = _.filter(routesWithValidQuotes, (quotes) => {
       return quotes.protocol === Protocol.MIXED;
     });
@@ -70,12 +68,6 @@ export async function getBestSwapRoute(
     }
     percentToQuotes[routeWithValidQuote.percent]!.push(routeWithValidQuote);
   }
-
-  metric.putMetric(
-    'BuildRouteWithValidQuoteObjects',
-    Date.now() - now,
-    MetricLoggerUnit.Milliseconds
-  );
 
   // Given all the valid quotes for each percentage find the optimal route.
   const swapRoute = await getBestSwapRouteBy(
@@ -109,35 +101,34 @@ export async function getBestSwapRoute(
 
   const missingAmount = amount.subtract(totalAmount);
   if (missingAmount.greaterThan(0)) {
-    log.info(
-      {
-        missingAmount: missingAmount.quotient.toString(),
-      },
-      `Optimal route's amounts did not equal exactIn/exactOut total. Adding missing amount to last route in array.`
-    );
-
+    // log.info(
+    //   {
+    //     missingAmount: missingAmount.quotient.toString(),
+    //   },
+    //   `Optimal route's amounts did not equal exactIn/exactOut total. Adding missing amount to last route in array.`
+    // );
     routeAmounts[routeAmounts.length - 1]!.amount =
       routeAmounts[routeAmounts.length - 1]!.amount.add(missingAmount);
   }
 
-  log.info(
-    {
-      routes: routeAmountsToString(routeAmounts),
-      numSplits: routeAmounts.length,
-      amount: amount.toExact(),
-      quote: swapRoute.quote.toExact(),
-      quoteGasAdjusted: swapRoute.quoteGasAdjusted.toFixed(
-        Math.min(swapRoute.quoteGasAdjusted.currency.decimals, 2)
-      ),
-      estimatedGasUSD: swapRoute.estimatedGasUsedUSD.toFixed(
-        Math.min(swapRoute.estimatedGasUsedUSD.currency.decimals, 2)
-      ),
-      estimatedGasToken: swapRoute.estimatedGasUsedQuoteToken.toFixed(
-        Math.min(swapRoute.estimatedGasUsedQuoteToken.currency.decimals, 2)
-      ),
-    },
-    `Found best swap route. ${routeAmounts.length} split.`
-  );
+  // log.info(
+  //   {
+  //     routes: routeAmountsToString(routeAmounts),
+  //     numSplits: routeAmounts.length,
+  //     amount: amount.toExact(),
+  //     quote: swapRoute.quote.toExact(),
+  //     quoteGasAdjusted: swapRoute.quoteGasAdjusted.toFixed(
+  //       Math.min(swapRoute.quoteGasAdjusted.currency.decimals, 2)
+  //     ),
+  //     estimatedGasUSD: swapRoute.estimatedGasUsedUSD.toFixed(
+  //       Math.min(swapRoute.estimatedGasUsedUSD.currency.decimals, 2)
+  //     ),
+  //     estimatedGasToken: swapRoute.estimatedGasUsedQuoteToken.toFixed(
+  //       Math.min(swapRoute.estimatedGasUsedQuoteToken.currency.decimals, 2)
+  //     ),
+  //   },
+  //   `Found best swap route. ${routeAmounts.length} split.`
+  // );
 
   return swapRoute;
 }
@@ -198,15 +189,15 @@ export async function getBestSwapRouteBy(
   const { minSplits, maxSplits, forceCrossProtocol } = routingConfig;
 
   if (!percentToSortedQuotes[100] || minSplits > 1 || forceCrossProtocol) {
-    log.info(
-      {
-        percentToSortedQuotes: _.mapValues(
-          percentToSortedQuotes,
-          (p) => p.length
-        ),
-      },
-      'Did not find a valid route without any splits. Continuing search anyway.'
-    );
+    // log.info(
+    //   {
+    //     percentToSortedQuotes: _.mapValues(
+    //       percentToSortedQuotes,
+    //       (p) => p.length
+    //     ),
+    //   },
+    //   'Did not find a valid route without any splits. Continuing search anyway.'
+    // );
   } else {
     bestQuote = by(percentToSortedQuotes[100][0]!);
     bestSwap = [percentToSortedQuotes[100][0]!];
@@ -260,30 +251,20 @@ export async function getBestSwapRouteBy(
   }
 
   let splits = 1;
-  let startedSplit = Date.now();
-
   while (queue.size > 0) {
-    metric.putMetric(
-      `Split${splits}Done`,
-      Date.now() - startedSplit,
-      MetricLoggerUnit.Milliseconds
-    );
-
-    startedSplit = Date.now();
-
-    log.info(
-      {
-        top5: _.map(
-          Array.from(bestSwapsPerSplit.consume()),
-          (q) =>
-            `${q.quote.toExact()} (${_(q.routes)
-              .map((r) => r.toString())
-              .join(', ')})`
-        ),
-        onQueue: queue.size,
-      },
-      `Top 3 with ${splits} splits`
-    );
+    // log.info(
+    //   {
+    //     top5: _.map(
+    //       Array.from(bestSwapsPerSplit.consume()),
+    //       (q) =>
+    //         `${q.quote.toExact()} (${_(q.routes)
+    //           .map((r) => r.toString())
+    //           .join(', ')})`
+    //     ),
+    //     onQueue: queue.size,
+    //   },
+    //   `Top 3 with ${splits} splits`
+    // );
 
     bestSwapsPerSplit.clear();
 
@@ -297,8 +278,7 @@ export async function getBestSwapRouteBy(
     }
 
     if (splits > maxSplits) {
-      log.info('Max splits reached. Stopping search.');
-      metric.putMetric(`MaxSplitsHitReached`, 1, MetricLoggerUnit.Count);
+      //log.info('Max splits reached. Stopping search.');
       break;
     }
 
@@ -382,13 +362,13 @@ export async function getBestSwapRouteBy(
             bestSwap = curRoutesNew;
 
             // Temporary experiment.
-            if (special) {
-              metric.putMetric(
-                `BestSwapNotPickingBestForPercent`,
-                1,
-                MetricLoggerUnit.Count
-              );
-            }
+            // if (special) {
+            //   metric.putMetric(
+            //     `BestSwapNotPickingBestForPercent`,
+            //     1,
+            //     MetricLoggerUnit.Count
+            //   );
+            // }
           }
         } else {
           queue.enqueue({
@@ -403,11 +383,12 @@ export async function getBestSwapRouteBy(
   }
 
   if (!bestSwap) {
-    log.info(`Could not find a valid swap`);
+    //log.info(`Could not find a valid swap`);
+    console.log('Could not find a valid swap')
     return undefined;
   }
 
-  const postSplitNow = Date.now();
+  //const postSplitNow = Date.now();
 
   let quoteGasAdjusted = sumFn(
     _.map(
@@ -436,6 +417,7 @@ export async function getBestSwapRouteBy(
   }
   const usdToken = usdGasTokensByChain[chainId]![0]!;
   const usdTokenDecimals = usdToken.decimals;
+  //console.log("usdToken: "+usdToken.address+ " decimals: "+usdTokenDecimals.toString())
 
   // if on L2, calculate the L1 security fee
   let gasCostsL1ToL2: L1ToL2GasCosts = {
@@ -470,6 +452,7 @@ export async function getBestSwapRouteBy(
       // TODO: will error if gasToken has decimals greater than usdToken
       const decimalsDiff =
         usdTokenDecimals - routeWithValidQuote.gasCostInUSD.currency.decimals;
+      //console.log("gasToken: "+JSON.stringify(routeWithValidQuote.gasCostInUSD.currency))
 
       if (decimalsDiff == 0) {
         return CurrencyAmount.fromRawAmount(
@@ -477,7 +460,6 @@ export async function getBestSwapRouteBy(
           routeWithValidQuote.gasCostInUSD.quotient
         );
       }
-
       return CurrencyAmount.fromRawAmount(
         usdToken,
         JSBI.multiply(
@@ -489,7 +471,7 @@ export async function getBestSwapRouteBy(
     .value();
 
   let estimatedGasUsedUSD = sumFn(estimatedGasUsedUSDs);
-
+  
   // if they are different usd pools, convert to the usdToken
   if (estimatedGasUsedUSD.currency != gasCostL1USD.currency) {
     const decimalsDiff = usdTokenDecimals - gasCostL1USD.currency.decimals;
@@ -505,20 +487,20 @@ export async function getBestSwapRouteBy(
   } else {
     estimatedGasUsedUSD = estimatedGasUsedUSD.add(gasCostL1USD);
   }
+  // log.info(
+  //   {
+  //     estimatedGasUsedUSD: estimatedGasUsedUSD.toExact(),
+  //     normalizedUsdToken: usdToken,
+  //     routeUSDGasEstimates: _.map(
+  //       bestSwap,
+  //       (b) =>
+  //         `${b.percent}% ${routeToString(b.route)} ${b.gasCostInUSD.toExact()}`
+  //     ),
+  //     flatL1GasCostUSD: gasCostL1USD.toExact(),
+  //   },
+  //   'USD gas estimates of best route'
+  // );
 
-  log.info(
-    {
-      estimatedGasUsedUSD: estimatedGasUsedUSD.toExact(),
-      normalizedUsdToken: usdToken,
-      routeUSDGasEstimates: _.map(
-        bestSwap,
-        (b) =>
-          `${b.percent}% ${routeToString(b.route)} ${b.gasCostInUSD.toExact()}`
-      ),
-      flatL1GasCostUSD: gasCostL1USD.toExact(),
-    },
-    'USD gas estimates of best route'
-  );
 
   const estimatedGasUsedQuoteToken = sumFn(
     _.map(bestSwap, (routeWithValidQuote) => routeWithValidQuote.gasCostInToken)
@@ -542,11 +524,11 @@ export async function getBestSwapRouteBy(
     routeAmountB.amount.greaterThan(routeAmountA.amount) ? 1 : -1
   );
 
-  metric.putMetric(
-    'PostSplitDone',
-    Date.now() - postSplitNow,
-    MetricLoggerUnit.Milliseconds
-  );
+  // metric.putMetric(
+  //   'PostSplitDone',
+  //   Date.now() - postSplitNow,
+  //   MetricLoggerUnit.Milliseconds
+  // );
   return {
     quote,
     quoteGasAdjusted,
