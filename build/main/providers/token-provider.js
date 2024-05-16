@@ -99,7 +99,7 @@ exports.DAI_SCROLL = new sdk_core_1.Token(sdk_core_1.ChainId.SCROLL, '0xcA77eB3f
 exports.WBTC_SCROLL = new sdk_core_1.Token(sdk_core_1.ChainId.SCROLL, '0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1', 8, 'WBTC', 'Wrapped BTC');
 exports.USDT_SCROLL = new sdk_core_1.Token(sdk_core_1.ChainId.SCROLL, '0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df', 6, 'USDT', 'Tether USD');
 exports.USDC_SCROLL = new sdk_core_1.Token(sdk_core_1.ChainId.SCROLL, '0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4', 6, 'USDC', 'USD Coin');
-exports.USDC_BASE_SEPOLIA = new sdk_core_1.Token(sdk_core_1.ChainId.BASE_SEPOLIA, '0x036CbD53842c5426634e7929541eC2318f3dCF7e', 6, 'USDC', 'USD Coin');
+exports.USDC_BASE_SEPOLIA = new sdk_core_1.Token(sdk_core_1.ChainId.BASE_SEPOLIA, '0x9571566D7ECb2fc899477bF295248a20FF4Adb61', 6, 'USDC', 'USD Coin');
 class TokenProvider {
     constructor(chainId, multicall2Provider) {
         this.chainId = chainId;
