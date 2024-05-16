@@ -346,7 +346,6 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       { calls },
       `About to multicall for ${functionNames.length} functions at address ${address} with ${functionParams?.length} different sets of params`
     );
-
     const { blockNumber, returnData: aggregateResults } =
       await this.multicallContract.callStatic.multicall(calls, {
         blockTag: blockNumberOverride,
@@ -358,7 +357,7 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
     for (let i = 0; i < aggregateResults.length; i++) {
       const fragment = contractInterface.getFunction(functionNames[i]!);
       const { success, returnData, gasUsed } = aggregateResults[i]!;
-
+      //console.log("success: "+success+ "  length: "+ returnData.length)
       // Return data "0x" is sometimes returned for invalid pools.
       if (!success || returnData.length <= 2) {
         log.debug(

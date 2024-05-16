@@ -34,13 +34,18 @@ export class OptimismGasDataProvider
 
   constructor(
     protected chainId: ChainId,
-    protected multicall2Provider: IMulticallProvider,
-    gasPriceAddress?: string
+    protected multicall2Provider: IMulticallProvider
   ) {
-    if (chainId !== ChainId.OPTIMISM && chainId !== ChainId.BASE) {
+    if (chainId !== ChainId.OPTIMISM && chainId !== ChainId.BASE && chainId !== ChainId.BASE_SEPOLIA) {
       throw new Error('This data provider is used only on optimism networks.');
     }
-    this.gasOracleAddress = gasPriceAddress ?? OVM_GASPRICE_ADDRESS;
+    if (chainId === ChainId.BASE_SEPOLIA) {
+      this.gasOracleAddress = "0xb528D11cC114E026F138fE568744c6D45ce6Da7A"
+    } else if(chainId === ChainId.BASE) {
+      this.gasOracleAddress = "0xb528D11cC114E026F138fE568744c6D45ce6Da7A"
+    } else {
+      this.gasOracleAddress = OVM_GASPRICE_ADDRESS;
+    }
   }
 
   /**
@@ -59,7 +64,7 @@ export class OptimismGasDataProvider
         contractInterface: GasPriceOracle__factory.createInterface(),
         functionNames: funcNames,
       });
-
+    
     if (
       !tx.results[0]?.success ||
       !tx.results[1]?.success ||

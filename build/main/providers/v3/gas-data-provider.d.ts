@@ -25,7 +25,7 @@ export declare class OptimismGasDataProvider implements IL2GasDataProvider<Optim
     protected chainId: ChainId;
     protected multicall2Provider: IMulticallProvider;
     protected gasOracleAddress: string;
-    constructor(chainId: ChainId, multicall2Provider: IMulticallProvider, gasPriceAddress?: string);
+    constructor(chainId: ChainId, multicall2Provider: IMulticallProvider);
     /**
      * Gets the data constants needed to calculate the l1 security fee on Optimism.
      * @returns An OptimismGasData object that includes the l1BaseFee,
