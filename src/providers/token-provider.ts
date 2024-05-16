@@ -901,6 +901,8 @@ export const USDC_ON = (chainId: ChainId): Token => {
       return USDC_LINEA;
     case ChainId.SCROLL:
       return USDC_SCROLL;
+    case ChainId.BASE_SEPOLIA:
+      return USDC_BASE_SEPOLIA;
     default:
       throw new Error(`Chain id: ${chainId} not supported`);
   }
