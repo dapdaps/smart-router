@@ -11,6 +11,7 @@ export const DEFAULT_ROUTING_CONFIG_BY_CHAIN = (
     case ChainId.OPTIMISM_GOERLI:
     case ChainId.BASE:
     case ChainId.BASE_GOERLI:
+    case ChainId.BASE_SEPOLIA:
       return {
         v2PoolSelection: {
           topN: 3,

@@ -18,7 +18,8 @@ export const SUPPORTED_CHAINS: ChainId[] = [
   ChainId.AVALANCHE,
   ChainId.BASE,
   ChainId.Linea_GOERLI,
-  ChainId.LINEA
+  ChainId.LINEA,
+  ChainId.BASE_SEPOLIA,
   // Gnosis and Moonbeam don't yet have contracts deployed yet
 ];
 
@@ -35,6 +36,7 @@ export const HAS_L1_FEE = [
   ChainId.ARBITRUM_GOERLI,
   ChainId.BASE,
   ChainId.BASE_GOERLI,
+  ChainId.BASE_SEPOLIA,
 ];
 
 export const NETWORKS_WITH_SAME_UNISWAP_ADDRESSES = [
@@ -88,6 +90,8 @@ export const ID_TO_CHAIN_ID = (id: number): ChainId => {
       return ChainId.LINEA;
     case 534352:
       return ChainId.SCROLL;
+    case 84532:
+        return ChainId.BASE_SEPOLIA;
     default:
       throw new Error(`Unknown chain id: ${id}`);
   }
@@ -114,6 +118,7 @@ export enum ChainName {
   Linea_GOERLI = 'linea-goerli',
   Linea = 'linea-mainnet',
   SCROLL = 'scroll-mainnet',
+  BASE_SEPOLIA = 'base-sepolia',
 }
 
 
@@ -204,7 +209,12 @@ export const NATIVE_NAMES_BY_ID: { [chainId: number]: string[] } = {
     'ETH',
     'ETHER',
     '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-  ]
+  ],
+  [ChainId.BASE_SEPOLIA]: [
+    'ETH',
+    'ETHER',
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  ],
 };
 
 export const NATIVE_CURRENCY: { [chainId: number]: NativeCurrencyName } = {
@@ -227,6 +237,7 @@ export const NATIVE_CURRENCY: { [chainId: number]: NativeCurrencyName } = {
   [ChainId.Linea_GOERLI]: NativeCurrencyName.ETHER,
   [ChainId.LINEA]: NativeCurrencyName.ETHER,
   [ChainId.SCROLL]: NativeCurrencyName.ETHER,
+  [ChainId.BASE_SEPOLIA]: NativeCurrencyName.ETHER,
 };
 
 export const ID_TO_NETWORK_NAME = (id: number): ChainName => {
@@ -271,6 +282,8 @@ export const ID_TO_NETWORK_NAME = (id: number): ChainName => {
       return ChainName.Linea;
     case 534352:
       return ChainName.SCROLL;
+    case 84532:
+      return ChainName.BASE_SEPOLIA;
     default:
       throw new Error(`Unknown chain id: ${id}`);
   }
@@ -316,6 +329,8 @@ export const ID_TO_PROVIDER = (id: ChainId): string => {
       return process.env.JSON_RPC_PROVIDER_LINEA!;
     case ChainId.SCROLL:
       return process.env.JSON_RPC_PROVIDER_SCROLL!;
+    case ChainId.BASE_SEPOLIA:
+        return process.env.JSON_RPC_PROVIDER_BASE_SEPOLIA!;
     default:
       throw new Error(`Chain id: ${id} not supported`);
   }
@@ -460,6 +475,13 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId in ChainId]: Token } = {
   [ChainId.SCROLL]: new Token(
     ChainId.SCROLL,
     '0x5300000000000000000000000000000000000004',
+    18,
+    'WETH',
+    'Wrapped Ether'
+  ),
+  [ChainId.BASE_SEPOLIA]: new Token(
+    ChainId.BASE_SEPOLIA,
+    '0x4200000000000000000000000000000000000006',
     18,
     'WETH',
     'Wrapped Ether'

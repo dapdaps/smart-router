@@ -622,6 +622,13 @@ export const USDC_SCROLL = new Token(
   'USDC',
   'USD Coin'
 );
+export const USDC_BASE_SEPOLIA = new Token(
+  ChainId.BASE_SEPOLIA,
+  '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+  6,
+  'USDC',
+  'USD Coin'
+);
 
 export class TokenProvider implements ITokenProvider {
   constructor(

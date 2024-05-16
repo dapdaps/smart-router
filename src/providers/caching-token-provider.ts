@@ -56,6 +56,7 @@ import {
   WBTC_OPTIMISM_GOERLI,
   WMATIC_POLYGON,
   WMATIC_POLYGON_MUMBAI,
+  USDC_BASE_SEPOLIA,
 } from './token-provider';
 
 // These tokens will added to the Token cache on initialization.
@@ -166,6 +167,10 @@ export const CACHE_SEED_TOKENS: {
     USDT: USDT_SCROLL,
     DAI: DAI_SCROLL,
     WETH: WRAPPED_NATIVE_CURRENCY[ChainId.SCROLL],
+  },
+  [ChainId.BASE_SEPOLIA]: {
+    USDC: USDC_BASE_SEPOLIA,
+    WETH: WRAPPED_NATIVE_CURRENCY[ChainId.BASE_SEPOLIA],
   },
   // Currently we do not have providers for Moonbeam mainnet or Gnosis testnet
 };

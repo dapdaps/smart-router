@@ -41,6 +41,7 @@ import {
   USDT_LINEA,
   USDC_SCROLL,
   USDT_SCROLL,
+  USDC_BASE_SEPOLIA,
 } from '../../../providers/token-provider';
 import { IV2PoolProvider } from '../../../providers/v2/pool-provider';
 import {
@@ -83,6 +84,7 @@ export const usdGasTokensByChain: { [chainId in ChainId]?: Token[] } = {
   [ChainId.Linea_GOERLI]: [USDC_LINEA_GOERLI, USDT_LINEA_GOERLI],
   [ChainId.LINEA]: [USDC_LINEA, USDT_LINEA],
   [ChainId.SCROLL]: [USDC_SCROLL, USDT_SCROLL],
+  [ChainId.BASE_SEPOLIA]: [USDC_BASE_SEPOLIA],
 };
 
 export type L1ToL2GasCosts = {

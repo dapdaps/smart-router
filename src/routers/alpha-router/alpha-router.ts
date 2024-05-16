@@ -570,6 +570,7 @@ export class AlphaRouter
         case ChainId.SCROLL:
         case ChainId.Linea_GOERLI:
         case ChainId.LINEA:
+        case ChainId.BASE_SEPOLIA:
           this.onChainQuoteProvider = new OnChainQuoteProvider(
             chainId,
             provider,
