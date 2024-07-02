@@ -1,4 +1,4 @@
-name: dapdap-smart-router docker ci
+name: dapdap-uniswap-smart-router docker ci
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 env:
   AWS_REGION: us-east-1
   AWS_ROLE: arn:aws:iam::058264463173:role/v1-ecr-stack-ECRRole-J9v51g0f7T1I
-  IMAGE_REPO: dapdap-smart-router
+  IMAGE_REPO: dapdap-uniswap-smart-router
 
 jobs:
   docker-image-ci:
