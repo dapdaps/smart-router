@@ -38,6 +38,8 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_REPO }}
+          tags: |
+            type=sha,prefix=sha-,format=short
 
       - name: Build, tag, and push image to Amazon ECR
         env:
